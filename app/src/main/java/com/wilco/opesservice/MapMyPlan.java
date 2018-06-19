@@ -102,58 +102,19 @@ public class MapMyPlan extends AppCompatActivity implements View.OnClickListener
                             btnTag.setTag(quesAnsModel.getOptionsId().get(2 + j));
                         } else {*/
                 btnTag.setText(quesAnsModel.getOptions().get(j));
-                //btnTag.setTag("" + quesAnsModel.getOptionsId().get(j));
-                //Integer.parseInt(quesAnsModel.getQuestion() + quesAnsModel.getOptionsId().get(j))
                 btnTag.setTag(quesAnsModel.getQuestion() + "," + quesAnsModel.getOptionsId().get(j));
 
                 row.addView(btnTag);
 
-                /*}*/
-
                 String str = String.valueOf(btnTag.getTag());
                 List<String> stringList = Arrays.asList(str.split(","));
-
-//                Log.d("linearLayout", "TAG  : " + linearLayout.getTag());
-                Log.d("linearLayout", "child's : " + linearLayout.getChildCount());
-
-                /*try {
-                    btnTag = ((Button) linearLayout.findViewById(Integer.parseInt(stringList.get(1))));
-                    btnTag.setOnClickListener(new View.OnClickListener() {
-                        @Override
-                        public void onClick(View v) {
-
-                            QuesAnsModel model = new QuesAnsModel();
-
-                            for (int i = 0; i < quesAnsModelList.size(); i++) {
-                                model = quesAnsModelList.get(i);
-
-                                //for (int j = 0; j < quesAnsModel.getOptions().size(); j++) {
-//                                Integer.parseInt(quesAnsModel.getOptionsId().get(j))
-                                String str = String.valueOf(v.getTag());
-                                List<String> stringList = Arrays.asList(str.split(","));
-
-                                if (model.getId().get(0).matches(stringList.get(1))) {
-                                    Log.d("linearLayout", "click Tag : " + linearLayout.getTag());
-                                    Log.d("linearLayout", "click btnTag : " + v.getTag());
-                                    displayQuestions(model);
-                                    break;
-                                }
-                                //}
-
-                            }
-                        }
-
-                    });
-
-                } catch (Exception e) {
-                    Log.d("Exception", "e : " + e.getMessage());
-                }*/
             }
 
             column.addView(row);
             linearLayout.addView(column);
             linearLayout.setTag("" + quesAnsModel.getId().get(0));
-            Log.d("linearLayout", "Tag : " + /*linearLayout.getTag()*/quesAnsModel.getId().get(0));
+            Log.d("linearLayout", "Tag : " + linearLayout.getTag());
+            Log.d("linearLayout", "child's : " + linearLayout.getChildCount());
         }
     }
 
@@ -168,14 +129,12 @@ public class MapMyPlan extends AppCompatActivity implements View.OnClickListener
     public void onResume() {
         super.onResume();
         BusProvider.getInstance().register(this);
-
     }
 
     @Override
     public void onPause() {
         super.onPause();
         BusProvider.getInstance().unregister(this);
-
     }
 
     @Override
@@ -185,54 +144,39 @@ public class MapMyPlan extends AppCompatActivity implements View.OnClickListener
             String str = String.valueOf(v.getTag());
             List<String> stringList = Arrays.asList(str.split(","));
 
-//            btnTag = ((Button) linearLayout.findViewById(Integer.parseInt(stringList.get(1))));
             v = ((Button) linearLayout.findViewById(Integer.parseInt(stringList.get(1))));
-//            btnTag.setOnClickListener(new View.OnClickListener() {
-//            v.setOnClickListener(new View.OnClickListener() {
-//                @Override
-//                public void onClick(View v) {
 
-            Log.d("linearLayout", "click Tag : " + linearLayout.getTag());
             Log.d("linearLayout", "click btnTag : " + v.getTag());
-
-            QuesAnsModel model = new QuesAnsModel();
+            Log.d("linearLayout", "v btnTag : " + v.getRootView().hashCode());
 
             for (int i = 0; i < quesAnsModelList.size(); i++) {
-                model = quesAnsModelList.get(i);
-
-                //for (int j = 0; j < quesAnsModel.getOptions().size(); j++) {
-//                                Integer.parseInt(quesAnsModel.getOptionsId().get(j))
-                        /*String str = String.valueOf(v.getTag());
-                        List<String> stringList = Arrays.asList(str.split(","));*/
+                QuesAnsModel model = quesAnsModelList.get(i);
 
                 if (model.getId().get(0).matches(stringList.get(1))) {
 
-
+                    int hCode = v.getParent().getParent().hashCode();
                     String s = "" + linearLayout.getTag().toString();
-//                    s = s.toString().trim().replace("[", "").replace("]", "");
-//                    s.toString().trim().replace("]", "");
 
+                    boolean flag = false;
                     for (int k = 0; k < linearLayout.getChildCount(); k++) {
-                        //String s2 = ""+linearLayout.getChildAt(k);
-//                        s2 = s2.toString().trim().replace("[", "").replace("]", "");
-//                        s2.toString().trim().replace("]", "");
 
-                        //if (!s.matches(s2)) {
-                        // linearLayout.removeViewAt(k);
-                        //linearLayout.requestLayout();
-                        //}
+                        if (flag) {
+                            for (int v1 = k; v1 <= linearLayout.getChildCount(); v1++) {
+                                linearLayout.removeViewAt(k);
+                                linearLayout.requestLayout();
+                            }
+                            break;
+                        }
+
+                        if (hCode == linearLayout.getChildAt(k).hashCode()) {
+                            flag = true;
+                        }
                     }
-
 
                     displayQuestions(model);
                     break;
                 }
-                //}
-
             }
-//                }
-
-//            });
 
         } catch (Exception e) {
             Log.d("Exception", "e : " + e.getMessage());
