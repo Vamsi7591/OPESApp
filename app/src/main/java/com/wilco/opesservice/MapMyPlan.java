@@ -49,10 +49,10 @@ public class MapMyPlan extends AppCompatActivity implements View.OnClickListener
     }
 
 
-    List<QuesAnsModel> quesAnsModelList = new ArrayList<>();
+    private List<QuesAnsModel> quesAnsModelList = new ArrayList<>();
 
     @Subscribe
-    public void onServerEvent(ServerEvent serverEvent) throws JSONException {
+    public void onServerEvent(final ServerEvent serverEvent) throws JSONException {
         //Toast.makeText(this, "" + serverEvent.getQuesAnsModel().getData(), Toast.LENGTH_SHORT).show();
 
         if (serverEvent.getQuesAnsModel().getStatus() && serverEvent.getQuesAnsModel().getCode() == 200)
@@ -60,19 +60,21 @@ public class MapMyPlan extends AppCompatActivity implements View.OnClickListener
                 quesAnsModelList = serverEvent.getQuesAnsModel().getData();
                 QuesAnsModel quesAnsModel = new QuesAnsModel();
                 quesAnsModel = quesAnsModelList.get(0);
-                displayQuestions(quesAnsModel);
+
+                final QuesAnsModel finalQuesAnsModel = quesAnsModel;
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        displayQuestions(finalQuesAnsModel);
+                    }
+                });
+
             }
     }
 
     private void displayQuestions(final QuesAnsModel quesAnsModel) {
 
-//        TextView quesText = new TextView(this);
-//        quesText.setText(quesAnsModel.getQuestion());
-//        linearLayout.addView(quesText);
-
-
-//        3 ? 2 : 1
-        for (int i = 0; i < quesAnsModel.getId().size(); i++) {
+        if (quesAnsModel.getId().size() != 0) {
 
             LinearLayout column = new LinearLayout(this);
 
@@ -90,17 +92,13 @@ public class MapMyPlan extends AppCompatActivity implements View.OnClickListener
             quesText.setText(quesAnsModel.getQuestion());
             column.addView(quesText);
 
-//                    (quesAnsModel.getOptions().size() > 3 ? 2 : 1)
-            for (int j = 0; j < quesAnsModel.getOptions().size(); j++) {
+            /*for (int j = 0; j < quesAnsModel.getOptions().size(); j++) {
                 btnTag = new Button(this);
                 btnTag.setId(Integer.parseInt(quesAnsModel.getOptionsId().get(j)));
                 btnTag.setLayoutParams(new LinearLayout.LayoutParams
                         (LinearLayout.LayoutParams.WRAP_CONTENT, ActionMenuView.LayoutParams.WRAP_CONTENT));
                 btnTag.setOnClickListener(this);
-                        /*if (i >= 1) {
-                            btnTag.setText(quesAnsModel.getOptions().get(2 + j));
-                            btnTag.setTag(quesAnsModel.getOptionsId().get(2 + j));
-                        } else {*/
+
                 btnTag.setText(quesAnsModel.getOptions().get(j));
                 btnTag.setTag(quesAnsModel.getQuestion() + "," + quesAnsModel.getOptionsId().get(j));
 
@@ -108,6 +106,78 @@ public class MapMyPlan extends AppCompatActivity implements View.OnClickListener
 
                 String str = String.valueOf(btnTag.getTag());
                 List<String> stringList = Arrays.asList(str.split(","));
+            }*/
+
+//                    (quesAnsModel.getOptions().size() > 3 ? 2 : 1)
+            int noOfOptions = quesAnsModel.getOptions().size();
+
+
+            if (noOfOptions <= 3) {
+                // one coloumn
+                for (int j = 0; j < noOfOptions; j++) {
+                    btnTag = new Button(this);
+                    btnTag.setId(Integer.parseInt(quesAnsModel.getOptionsId().get(j)));
+                    btnTag.setLayoutParams(new LinearLayout.LayoutParams
+                            (LinearLayout.LayoutParams.WRAP_CONTENT, ActionMenuView.LayoutParams.WRAP_CONTENT));
+                    btnTag.setOnClickListener(this);
+                       /*if (i >= 1) {
+                            btnTag.setText(quesAnsModel.getOptions().get(2 + j));
+                            btnTag.setTag(quesAnsModel.getOptionsId().get(2 + j));
+                        } else {*/
+                    btnTag.setText(quesAnsModel.getOptions().get(j));
+                    btnTag.setTag(quesAnsModel.getQuestion() + "," + quesAnsModel.getOptionsId().get(j));
+
+                    row.addView(btnTag);
+                }
+            } else {
+                // more then one
+                LinearLayout columnChild = new LinearLayout(this);
+                columnChild.setLayoutParams(new LinearLayout.LayoutParams
+                        (LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT));
+                columnChild.setOrientation(LinearLayout.VERTICAL);
+
+
+                int quotient = divide(noOfOptions, 3);
+                int noOfRows = noOfOptions / 3 + quotient;
+                int noOfQueForColoumn = 3;
+
+                if (noOfRows == 2 && noOfOptions == 4) {
+                    noOfQueForColoumn = 2;
+                }
+
+
+                for (int j = 0; j < noOfRows; j++) {
+
+                    LinearLayout rowChild = new LinearLayout(this);
+                    rowChild.setLayoutParams(new LinearLayout.LayoutParams
+                            (LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT));
+                    rowChild.setOrientation(LinearLayout.HORIZONTAL);
+
+                    for (int z = 0; z < noOfQueForColoumn; z++) {
+                        if (quesAnsModel.getOptionsId().size() == 0)
+                            break;
+
+                        btnTag = new Button(this);
+                        btnTag.setId(Integer.parseInt(quesAnsModel.getOptionsId().get(0)));
+
+                        btnTag.setLayoutParams(new LinearLayout.LayoutParams
+                                (LinearLayout.LayoutParams.WRAP_CONTENT, ActionMenuView.LayoutParams.WRAP_CONTENT));
+                        btnTag.setOnClickListener(this);
+
+                        btnTag.setText(quesAnsModel.getOptions().get(0));
+                        btnTag.setTag(quesAnsModel.getQuestion() + "," + quesAnsModel.getOptionsId().get(0));
+
+                        rowChild.addView(btnTag);
+                        quesAnsModel.getOptionsId().remove(0);
+                        quesAnsModel.getOptions().remove(0);
+                    }
+
+                    if (rowChild.getChildCount() != 0)
+                        columnChild.addView(rowChild);
+                }
+
+                row.addView(columnChild);
+
             }
 
             column.addView(row);
@@ -118,6 +188,31 @@ public class MapMyPlan extends AppCompatActivity implements View.OnClickListener
         }
     }
 
+    // Function to divide a by b and
+    // return floor value it
+    static int divide(int dividend, int divisor) {
+
+        // Calculate sign of divisor i.e.,
+        // sign will be negative only iff
+        // either one of them is negative
+        // otherwise it will be positive
+        int sign = ((dividend < 0) ^ (divisor < 0)) ? -1 : 1;
+
+        // Update both divisor and
+        // dividend positive
+        dividend = Math.abs(dividend);
+        divisor = Math.abs(divisor);
+
+        // Initialize the quotient
+        int quotient = 0;
+
+        while (dividend >= divisor) {
+            dividend -= divisor;
+            ++quotient;
+        }
+
+        return sign * quotient;
+    }
 
     @Subscribe
     public void onErrorEvent(ErrorEvent errorEvent) {
@@ -141,6 +236,9 @@ public class MapMyPlan extends AppCompatActivity implements View.OnClickListener
     public void onClick(View v) {
 
         try {
+
+            final List<QuesAnsModel> modelList = quesAnsModelList;
+
             String str = String.valueOf(v.getTag());
             List<String> stringList = Arrays.asList(str.split(","));
 
@@ -149,8 +247,8 @@ public class MapMyPlan extends AppCompatActivity implements View.OnClickListener
             Log.d("linearLayout", "click btnTag : " + v.getTag());
             Log.d("linearLayout", "v btnTag : " + v.getRootView().hashCode());
 
-            for (int i = 0; i < quesAnsModelList.size(); i++) {
-                QuesAnsModel model = quesAnsModelList.get(i);
+            for (int i = 0; i < modelList.size(); i++) {
+                final QuesAnsModel model = modelList.get(i);
 
                 if (model.getId().get(0).matches(stringList.get(1))) {
 
@@ -173,7 +271,13 @@ public class MapMyPlan extends AppCompatActivity implements View.OnClickListener
                         }
                     }
 
-                    displayQuestions(model);
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            displayQuestions(model);
+                        }
+                    });
+
                     break;
                 }
             }
