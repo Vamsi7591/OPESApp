@@ -58,134 +58,19 @@ public class MapMyPlan extends AppCompatActivity implements View.OnClickListener
         if (serverEvent.getQuesAnsModel().getStatus() && serverEvent.getQuesAnsModel().getCode() == 200)
             if (serverEvent.getQuesAnsModel().getData() != null) {
                 quesAnsModelList = serverEvent.getQuesAnsModel().getData();
-                QuesAnsModel quesAnsModel = new QuesAnsModel();
-                quesAnsModel = quesAnsModelList.get(0);
+                /*QuesAnsModel quesAnsModel = new QuesAnsModel();
+                quesAnsModel = quesAnsModelList.get(0);*/
+                displayQuestions(quesAnsModelList.get(0));
 
-                final QuesAnsModel finalQuesAnsModel = quesAnsModel;
+                /*final QuesAnsModel finalQuesAnsModel = quesAnsModel;
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        displayQuestions(finalQuesAnsModel);
+                        displayQuestions(quesAnsModel);
                     }
-                });
+                });*/
 
             }
-    }
-
-    private void displayQuestions(final QuesAnsModel quesAnsModel) {
-
-        if (quesAnsModel.getId().size() != 0) {
-
-            LinearLayout column = new LinearLayout(this);
-
-            column.setLayoutParams(new LinearLayout.LayoutParams
-                    (LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT));
-            column.setOrientation(LinearLayout.VERTICAL);
-
-            LinearLayout row = new LinearLayout(this);
-
-            row.setLayoutParams(new LinearLayout.LayoutParams
-                    (LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT));
-            row.setOrientation(LinearLayout.HORIZONTAL);
-
-            TextView quesText = new TextView(this);
-            quesText.setText(quesAnsModel.getQuestion());
-            column.addView(quesText);
-
-            /*for (int j = 0; j < quesAnsModel.getOptions().size(); j++) {
-                btnTag = new Button(this);
-                btnTag.setId(Integer.parseInt(quesAnsModel.getOptionsId().get(j)));
-                btnTag.setLayoutParams(new LinearLayout.LayoutParams
-                        (LinearLayout.LayoutParams.WRAP_CONTENT, ActionMenuView.LayoutParams.WRAP_CONTENT));
-                btnTag.setOnClickListener(this);
-
-                btnTag.setText(quesAnsModel.getOptions().get(j));
-                btnTag.setTag(quesAnsModel.getQuestion() + "," + quesAnsModel.getOptionsId().get(j));
-
-                row.addView(btnTag);
-
-                String str = String.valueOf(btnTag.getTag());
-                List<String> stringList = Arrays.asList(str.split(","));
-            }*/
-
-//                    (quesAnsModel.getOptions().size() > 3 ? 2 : 1)
-            int noOfOptions = quesAnsModel.getOptions().size();
-
-
-            if (noOfOptions <= 3) {
-                // one coloumn
-                for (int j = 0; j < noOfOptions; j++) {
-                    btnTag = new Button(this);
-                    btnTag.setId(Integer.parseInt(quesAnsModel.getOptionsId().get(j)));
-                    btnTag.setLayoutParams(new LinearLayout.LayoutParams
-                            (LinearLayout.LayoutParams.WRAP_CONTENT, ActionMenuView.LayoutParams.WRAP_CONTENT));
-                    btnTag.setOnClickListener(this);
-                       /*if (i >= 1) {
-                            btnTag.setText(quesAnsModel.getOptions().get(2 + j));
-                            btnTag.setTag(quesAnsModel.getOptionsId().get(2 + j));
-                        } else {*/
-                    btnTag.setText(quesAnsModel.getOptions().get(j));
-                    btnTag.setTag(quesAnsModel.getQuestion() + "," + quesAnsModel.getOptionsId().get(j));
-
-                    row.addView(btnTag);
-                }
-            } else {
-                // more then one
-                LinearLayout columnChild = new LinearLayout(this);
-                columnChild.setLayoutParams(new LinearLayout.LayoutParams
-                        (LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT));
-                columnChild.setOrientation(LinearLayout.VERTICAL);
-
-
-                int quotient = divide(noOfOptions, 3);
-                int noOfRows = noOfOptions / 3 + quotient;
-                int noOfQueForColoumn = 3;
-
-                if (noOfRows == 2 && noOfOptions == 4) {
-                    noOfQueForColoumn = 2;
-                }
-
-
-                for (int j = 0; j < noOfRows; j++) {
-
-                    LinearLayout rowChild = new LinearLayout(this);
-                    rowChild.setLayoutParams(new LinearLayout.LayoutParams
-                            (LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT));
-                    rowChild.setOrientation(LinearLayout.HORIZONTAL);
-
-                    for (int z = 0; z < noOfQueForColoumn; z++) {
-                        if (quesAnsModel.getOptionsId().size() == 0)
-                            break;
-
-                        btnTag = new Button(this);
-                        btnTag.setId(Integer.parseInt(quesAnsModel.getOptionsId().get(0)));
-
-                        btnTag.setLayoutParams(new LinearLayout.LayoutParams
-                                (LinearLayout.LayoutParams.WRAP_CONTENT, ActionMenuView.LayoutParams.WRAP_CONTENT));
-                        btnTag.setOnClickListener(this);
-
-                        btnTag.setText(quesAnsModel.getOptions().get(0));
-                        btnTag.setTag(quesAnsModel.getQuestion() + "," + quesAnsModel.getOptionsId().get(0));
-
-                        rowChild.addView(btnTag);
-                        quesAnsModel.getOptionsId().remove(0);
-                        quesAnsModel.getOptions().remove(0);
-                    }
-
-                    if (rowChild.getChildCount() != 0)
-                        columnChild.addView(rowChild);
-                }
-
-                row.addView(columnChild);
-
-            }
-
-            column.addView(row);
-            linearLayout.addView(column);
-            linearLayout.setTag("" + quesAnsModel.getId().get(0));
-            Log.d("linearLayout", "Tag : " + linearLayout.getTag());
-            Log.d("linearLayout", "child's : " + linearLayout.getChildCount());
-        }
     }
 
     // Function to divide a by b and
@@ -237,8 +122,6 @@ public class MapMyPlan extends AppCompatActivity implements View.OnClickListener
 
         try {
 
-            final List<QuesAnsModel> modelList = quesAnsModelList;
-
             String str = String.valueOf(v.getTag());
             List<String> stringList = Arrays.asList(str.split(","));
 
@@ -247,8 +130,8 @@ public class MapMyPlan extends AppCompatActivity implements View.OnClickListener
             Log.d("linearLayout", "click btnTag : " + v.getTag());
             Log.d("linearLayout", "v btnTag : " + v.getRootView().hashCode());
 
-            for (int i = 0; i < modelList.size(); i++) {
-                final QuesAnsModel model = modelList.get(i);
+            for (int i = 0; i < quesAnsModelList.size(); i++) {
+                final QuesAnsModel model = quesAnsModelList.get(i);
 
                 if (model.getId().get(0).matches(stringList.get(1))) {
 
@@ -258,6 +141,9 @@ public class MapMyPlan extends AppCompatActivity implements View.OnClickListener
                     boolean flag = false;
                     for (int k = 0; k < linearLayout.getChildCount(); k++) {
 
+//                        View v11 = ((Button) linearLayout.getChildAt(k).findViewById(Integer.parseInt(stringList.get(1))));
+//                        hCode == v11.getParent().getParent().hashCode();
+
                         if (flag) {
                             for (int v1 = k; v1 <= linearLayout.getChildCount(); v1++) {
                                 linearLayout.removeViewAt(k);
@@ -266,7 +152,9 @@ public class MapMyPlan extends AppCompatActivity implements View.OnClickListener
                             break;
                         }
 
-                        if (hCode == linearLayout.getChildAt(k).hashCode()) {
+                        LinearLayout xx = (LinearLayout) linearLayout.getChildAt(k);
+                        xx.getChildAt(1).hashCode();
+                        if (hCode == linearLayout.getChildAt(k).hashCode() || v.getParent().getParent().getParent().getParent().hashCode() == linearLayout.getChildAt(k).hashCode() ) {
                             flag = true;
                         }
                     }
@@ -286,4 +174,116 @@ public class MapMyPlan extends AppCompatActivity implements View.OnClickListener
             Log.d("Exception", "e : " + e.getMessage());
         }
     }
+
+    private void displayQuestions(QuesAnsModel quesAnsModel) {
+
+        if (quesAnsModel.getId().size() != 0) {
+
+            LinearLayout column = new LinearLayout(this);
+
+            column.setLayoutParams(new LinearLayout.LayoutParams
+                    (LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT));
+            column.setOrientation(LinearLayout.VERTICAL);
+
+            LinearLayout row = new LinearLayout(this);
+
+            row.setLayoutParams(new LinearLayout.LayoutParams
+                    (LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT));
+            row.setOrientation(LinearLayout.HORIZONTAL);
+
+            TextView quesText = new TextView(this);
+            quesText.setText(quesAnsModel.getQuestion());
+            column.addView(quesText);
+
+            int noOfOptions = quesAnsModel.getOptions().size();
+
+            if (noOfOptions <= 3) {
+                // one coloumn
+                for (int j = 0; j < noOfOptions; j++) {
+                    btnTag = new Button(this);
+                    btnTag.setId(Integer.parseInt(quesAnsModel.getOptionsId().get(j)));
+                    LinearLayout.LayoutParams param = new LinearLayout.LayoutParams(
+                            LinearLayout.LayoutParams.MATCH_PARENT,
+                            LinearLayout.LayoutParams.WRAP_CONTENT,
+                            1.0f
+                    );
+                    btnTag.setLayoutParams(param);
+                    /*btnTag.setLayoutParams(new LinearLayout.LayoutParams
+                            (LinearLayout.LayoutParams.WRAP_CONTENT, ActionMenuView.LayoutParams.WRAP_CONTENT));*/
+
+                    btnTag.setOnClickListener(this);
+
+                    btnTag.setText(quesAnsModel.getOptions().get(j));
+                    btnTag.setTag(quesAnsModel.getQuestion() + "," + quesAnsModel.getOptionsId().get(j));
+
+                    row.addView(btnTag);
+                }
+            } else {
+                // more then one
+                LinearLayout columnChild = new LinearLayout(this);
+                columnChild.setLayoutParams(new LinearLayout.LayoutParams
+                        (LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT));
+                columnChild.setOrientation(LinearLayout.VERTICAL);
+
+
+                int quotient = divide(noOfOptions, 3);
+                int noOfRows = noOfOptions / 3 + quotient;
+                int noOfQueForColoumn = 3;
+                int index = 0;
+
+                if (noOfRows == 2 && noOfOptions == 4) {
+                    noOfQueForColoumn = 2;
+                }
+
+
+                for (int j = 0; j < noOfRows; j++) {
+
+                    LinearLayout rowChild = new LinearLayout(this);
+                    rowChild.setLayoutParams(new LinearLayout.LayoutParams
+                            (LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT));
+                    rowChild.setOrientation(LinearLayout.HORIZONTAL);
+
+                    for (int z = 0; z < noOfQueForColoumn; z++) {
+                        if (index == noOfOptions)
+                            break;
+
+                        btnTag = new Button(this);
+                        btnTag.setId(Integer.parseInt(quesAnsModel.getOptionsId().get(index)));
+
+                        LinearLayout.LayoutParams param = new LinearLayout.LayoutParams(
+                                LinearLayout.LayoutParams.MATCH_PARENT,
+                                LinearLayout.LayoutParams.WRAP_CONTENT,
+                                1.0f
+                        );
+                        btnTag.setLayoutParams(param);
+
+                        /*btnTag.setLayoutParams(new LinearLayout.LayoutParams
+                                (LinearLayout.LayoutParams.WRAP_CONTENT, ActionMenuView.LayoutParams.WRAP_CONTENT));
+                        */
+                        btnTag.setOnClickListener(this);
+
+                        btnTag.setText(quesAnsModel.getOptions().get(index));
+                        btnTag.setTag(quesAnsModel.getQuestion() + "," + quesAnsModel.getOptionsId().get(index));
+
+                        rowChild.addView(btnTag);
+
+                        index = index + 1;
+                    }
+
+                    if (rowChild.getChildCount() != 0)
+                        columnChild.addView(rowChild);
+                }
+
+                row.addView(columnChild);
+
+            }
+
+            column.addView(row);
+            linearLayout.addView(column);
+            linearLayout.setTag("" + quesAnsModel.getId().get(0));
+            Log.d("linearLayout", "Tag : " + linearLayout.getTag());
+            Log.d("linearLayout", "child's : " + linearLayout.getChildCount());
+        }
+    }
+
 }
