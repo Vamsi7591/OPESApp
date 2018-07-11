@@ -1,13 +1,18 @@
 package com.wilco.opesservice;
 
 import android.annotation.SuppressLint;
+import android.content.res.Resources;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.util.LayoutDirection;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.View;
 import android.widget.ActionMenuView;
 import android.widget.Button;
 import android.widget.LinearLayout;
+import android.widget.RadioButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -28,7 +33,7 @@ public class MapMyPlan extends AppCompatActivity implements View.OnClickListener
     private Communicator communicator;
 
     LinearLayout linearLayout;
-    Button btnTag;
+    Button btnTag, submit;
 
     @SuppressLint("ResourceType")
     @Override
@@ -41,6 +46,28 @@ public class MapMyPlan extends AppCompatActivity implements View.OnClickListener
         usePost();
 
         linearLayout = (LinearLayout) findViewById(R.id.baseLayout);
+        submit = (Button) findViewById(R.id.submit);
+
+        submit.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                linearLayout.getChildCount();
+
+                for (int x = 0 ; x < linearLayout.getChildCount(); x++){
+
+                    if(linearLayout.getChildAt(x).getTag() == "columnHeader") {
+                        Log.v("TAG", "Que ==> " + linearLayout.getChildAt(x).getTag());
+
+                        LinearLayout aa = (LinearLayout) linearLayout.getChildAt(x);
+                        Log.v("TAG", "Que ==> " + aa.getChildAt(0).getTag());
+
+                        LinearLayout bb = (LinearLayout) aa.getChildAt(1);
+                        Log.v("TAG", "Options count ==> " + bb.getChildCount());
+                    }
+
+                }
+            }
+        });
     }
 
 
@@ -53,23 +80,11 @@ public class MapMyPlan extends AppCompatActivity implements View.OnClickListener
 
     @Subscribe
     public void onServerEvent(final ServerEvent serverEvent) throws JSONException {
-        //Toast.makeText(this, "" + serverEvent.getQuesAnsModel().getData(), Toast.LENGTH_SHORT).show();
 
         if (serverEvent.getQuesAnsModel().getStatus() && serverEvent.getQuesAnsModel().getCode() == 200)
             if (serverEvent.getQuesAnsModel().getData() != null) {
                 quesAnsModelList = serverEvent.getQuesAnsModel().getData();
-                /*QuesAnsModel quesAnsModel = new QuesAnsModel();
-                quesAnsModel = quesAnsModelList.get(0);*/
                 displayQuestions(quesAnsModelList.get(0));
-
-                /*final QuesAnsModel finalQuesAnsModel = quesAnsModel;
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        displayQuestions(quesAnsModel);
-                    }
-                });*/
-
             }
     }
 
@@ -127,6 +142,8 @@ public class MapMyPlan extends AppCompatActivity implements View.OnClickListener
 
             v = ((Button) linearLayout.findViewById(Integer.parseInt(stringList.get(1))));
 
+            submit.setVisibility(View.INVISIBLE);
+
             Log.d("linearLayout", "click btnTag : " + v.getTag());
             Log.d("linearLayout", "v btnTag : " + v.getRootView().hashCode());
 
@@ -136,13 +153,9 @@ public class MapMyPlan extends AppCompatActivity implements View.OnClickListener
                 if (model.getId().get(0).matches(stringList.get(1))) {
 
                     int hCode = v.getParent().getParent().hashCode();
-                    String s = "" + linearLayout.getTag().toString();
 
                     boolean flag = false;
                     for (int k = 0; k < linearLayout.getChildCount(); k++) {
-
-//                        View v11 = ((Button) linearLayout.getChildAt(k).findViewById(Integer.parseInt(stringList.get(1))));
-//                        hCode == v11.getParent().getParent().hashCode();
 
                         if (flag) {
                             for (int v1 = k; v1 <= linearLayout.getChildCount(); v1++) {
@@ -152,9 +165,47 @@ public class MapMyPlan extends AppCompatActivity implements View.OnClickListener
                             break;
                         }
 
-                        LinearLayout xx = (LinearLayout) linearLayout.getChildAt(k);
-                        xx.getChildAt(1).hashCode();
-                        if (hCode == linearLayout.getChildAt(k).hashCode() || v.getParent().getParent().getParent().getParent().hashCode() == linearLayout.getChildAt(k).hashCode() ) {
+                        if (hCode == linearLayout.getChildAt(k).hashCode()) {
+
+                            LinearLayout aa = ((LinearLayout) linearLayout.getChildAt(k));
+                            aa.getChildCount(); // always 2 children's (TV , LL)
+                            LinearLayout bb = (LinearLayout) aa.getChildAt(1); // 1 - for LL , 0 - TV
+
+                            for (int b = 0; b < bb.getChildCount(); b++) {
+
+                                if (bb.getChildAt(b).getTag() == v.getTag()) {
+                                    v.setBackground(getResources().getDrawable(R.drawable.button_selected));
+                                } else {
+                                    bb.getChildAt(b).setBackground(getResources().getDrawable(R.drawable.button_unselected));
+                                }
+                            }
+
+                            flag = true;
+                        } else if (v.getParent().getParent().getParent().getParent().hashCode() == linearLayout.getChildAt(k).hashCode()) {
+
+                            LinearLayout aa = ((LinearLayout) linearLayout.getChildAt(k));
+                            aa.getChildCount(); // always 2 children's (TV , LL)
+                            LinearLayout bb = (LinearLayout) aa.getChildAt(1); // 1 - for LL , 0 - TV
+
+                            for (int b = 0; b < bb.getChildCount(); b++) {
+
+                                LinearLayout cc = (LinearLayout) bb.getChildAt(b);
+
+                                for (int c = 0; c < cc.getChildCount(); c++) {
+
+                                    LinearLayout dd = (LinearLayout) cc.getChildAt(c);
+                                    dd.getChildCount();
+
+                                    for (int d = 0; d < dd.getChildCount(); d++) {
+                                        if (dd.getChildAt(d).getTag() == v.getTag()) {
+                                            v.setBackground(getResources().getDrawable(R.drawable.button_selected));
+                                        } else {
+                                            dd.getChildAt(d).setBackground(getResources().getDrawable(R.drawable.button_unselected));
+                                        }
+                                    }
+                                }
+                            }
+
                             flag = true;
                         }
                     }
@@ -167,6 +218,72 @@ public class MapMyPlan extends AppCompatActivity implements View.OnClickListener
                     });
 
                     break;
+                } else {
+
+                    if (linearLayout.getChildCount() < i && model.getQuestion().contentEquals(stringList.get(0))) {
+
+                        int hCode = v.getParent().getParent().hashCode();
+
+                        boolean flag = false;
+                        for (int k = 0; k < linearLayout.getChildCount(); k++) {
+
+                            if (flag) {
+                                for (int v1 = k; v1 <= linearLayout.getChildCount(); v1++) {
+                                    linearLayout.removeViewAt(k);
+                                    linearLayout.requestLayout();
+                                }
+                                break;
+                            }
+
+                            if (hCode == linearLayout.getChildAt(k).hashCode()) {
+
+                                LinearLayout aa = ((LinearLayout) linearLayout.getChildAt(k));
+                                aa.getChildCount(); // always 2 children's (TV , LL)
+                                LinearLayout bb = (LinearLayout) aa.getChildAt(1); // 1 - for LL , 0 - TV
+
+                                for (int b = 0; b < bb.getChildCount(); b++) {
+
+                                    if (bb.getChildAt(b).getTag() == v.getTag()) {
+                                        v.setBackground(getResources().getDrawable(R.drawable.button_selected));
+                                    } else {
+                                        bb.getChildAt(b).setBackground(getResources().getDrawable(R.drawable.button_unselected));
+                                    }
+                                }
+
+                                flag = true;
+                            } else if (v.getParent().getParent().getParent().getParent().hashCode() == linearLayout.getChildAt(k).hashCode()) {
+
+                                LinearLayout aa = ((LinearLayout) linearLayout.getChildAt(k));
+                                aa.getChildCount(); // always 2 children's (TV , LL)
+                                LinearLayout bb = (LinearLayout) aa.getChildAt(1); // 1 - for LL , 0 - TV
+
+                                for (int b = 0; b < bb.getChildCount(); b++) {
+
+                                    LinearLayout cc = (LinearLayout) bb.getChildAt(b);
+
+                                    for (int c = 0; c < cc.getChildCount(); c++) {
+
+                                        LinearLayout dd = (LinearLayout) cc.getChildAt(c);
+                                        dd.getChildCount();
+
+                                        for (int d = 0; d < dd.getChildCount(); d++) {
+                                            if (dd.getChildAt(d).getTag() == v.getTag()) {
+                                                v.setBackground(getResources().getDrawable(R.drawable.button_selected));
+                                            } else {
+                                                dd.getChildAt(d).setBackground(getResources().getDrawable(R.drawable.button_unselected));
+                                            }
+                                        }
+                                    }
+                                }
+
+                                flag = true;
+                            }
+                        }
+
+                        submit.setVisibility(View.VISIBLE);
+                        Toast.makeText(MapMyPlan.this, "Thanks for the survey.", Toast.LENGTH_SHORT).show();
+                    }
+
                 }
             }
 
@@ -179,21 +296,33 @@ public class MapMyPlan extends AppCompatActivity implements View.OnClickListener
 
         if (quesAnsModel.getId().size() != 0) {
 
-            LinearLayout column = new LinearLayout(this);
+            LinearLayout columnHeader = new LinearLayout(this);
 
-            column.setLayoutParams(new LinearLayout.LayoutParams
+            columnHeader.setLayoutParams(new LinearLayout.LayoutParams
                     (LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT));
-            column.setOrientation(LinearLayout.VERTICAL);
+            columnHeader.setOrientation(LinearLayout.VERTICAL);
 
-            LinearLayout row = new LinearLayout(this);
+            LinearLayout rowHeader = new LinearLayout(this);
 
-            row.setLayoutParams(new LinearLayout.LayoutParams
+            rowHeader.setLayoutParams(new LinearLayout.LayoutParams
                     (LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT));
-            row.setOrientation(LinearLayout.HORIZONTAL);
+            rowHeader.setOrientation(LinearLayout.HORIZONTAL);
+            rowHeader.setGravity(Gravity.CENTER);
+            rowHeader.setTag("rowHeader");
 
             TextView quesText = new TextView(this);
+            LinearLayout.LayoutParams paramTV = new LinearLayout.LayoutParams(
+                    LinearLayout.LayoutParams.MATCH_PARENT,
+                    LinearLayout.LayoutParams.WRAP_CONTENT,
+                    1.0f
+            );
+            paramTV.setMargins(5, 5, 5, 5);
+            quesText.setLayoutParams(paramTV);
+            quesText.setTextSize(18f);
             quesText.setText(quesAnsModel.getQuestion());
-            column.addView(quesText);
+            quesText.setTag(quesAnsModel.getQuestion());
+            columnHeader.addView(quesText);
+            columnHeader.setTag("columnHeader");
 
             int noOfOptions = quesAnsModel.getOptions().size();
 
@@ -207,16 +336,16 @@ public class MapMyPlan extends AppCompatActivity implements View.OnClickListener
                             LinearLayout.LayoutParams.WRAP_CONTENT,
                             1.0f
                     );
+                    param.setMargins(5, 5, 5, 5);
                     btnTag.setLayoutParams(param);
-                    /*btnTag.setLayoutParams(new LinearLayout.LayoutParams
-                            (LinearLayout.LayoutParams.WRAP_CONTENT, ActionMenuView.LayoutParams.WRAP_CONTENT));*/
 
                     btnTag.setOnClickListener(this);
 
                     btnTag.setText(quesAnsModel.getOptions().get(j));
                     btnTag.setTag(quesAnsModel.getQuestion() + "," + quesAnsModel.getOptionsId().get(j));
+                    btnTag.setBackground(getResources().getDrawable(R.drawable.button_unselected));
 
-                    row.addView(btnTag);
+                    rowHeader.addView(btnTag);
                 }
             } else {
                 // more then one
@@ -224,6 +353,8 @@ public class MapMyPlan extends AppCompatActivity implements View.OnClickListener
                 columnChild.setLayoutParams(new LinearLayout.LayoutParams
                         (LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT));
                 columnChild.setOrientation(LinearLayout.VERTICAL);
+                columnChild.setGravity(Gravity.CENTER);
+                columnChild.setTag("columnChild");
 
 
                 int quotient = divide(noOfOptions, 3);
@@ -242,6 +373,8 @@ public class MapMyPlan extends AppCompatActivity implements View.OnClickListener
                     rowChild.setLayoutParams(new LinearLayout.LayoutParams
                             (LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT));
                     rowChild.setOrientation(LinearLayout.HORIZONTAL);
+                    rowChild.setGravity(Gravity.CENTER);
+                    rowChild.setTag("rowChild");
 
                     for (int z = 0; z < noOfQueForColoumn; z++) {
                         if (index == noOfOptions)
@@ -255,15 +388,14 @@ public class MapMyPlan extends AppCompatActivity implements View.OnClickListener
                                 LinearLayout.LayoutParams.WRAP_CONTENT,
                                 1.0f
                         );
+                        param.setMargins(5, 5, 5, 5);
                         btnTag.setLayoutParams(param);
 
-                        /*btnTag.setLayoutParams(new LinearLayout.LayoutParams
-                                (LinearLayout.LayoutParams.WRAP_CONTENT, ActionMenuView.LayoutParams.WRAP_CONTENT));
-                        */
                         btnTag.setOnClickListener(this);
 
                         btnTag.setText(quesAnsModel.getOptions().get(index));
                         btnTag.setTag(quesAnsModel.getQuestion() + "," + quesAnsModel.getOptionsId().get(index));
+                        btnTag.setBackground(getResources().getDrawable(R.drawable.button_unselected));
 
                         rowChild.addView(btnTag);
 
@@ -274,15 +406,15 @@ public class MapMyPlan extends AppCompatActivity implements View.OnClickListener
                         columnChild.addView(rowChild);
                 }
 
-                row.addView(columnChild);
+                rowHeader.addView(columnChild);
 
             }
 
-            column.addView(row);
-            linearLayout.addView(column);
+            columnHeader.addView(rowHeader);
+            linearLayout.addView(columnHeader);
             linearLayout.setTag("" + quesAnsModel.getId().get(0));
-            Log.d("linearLayout", "Tag : " + linearLayout.getTag());
-            Log.d("linearLayout", "child's : " + linearLayout.getChildCount());
+//            Log.d("linearLayout", "Tag : " + linearLayout.getTag());
+//            Log.d("linearLayout", "child's : " + linearLayout.getChildCount());
         }
     }
 
